@@ -1,0 +1,641 @@
+from random import randint
+def make_fair_dice(sides):
+    assert type(sides) == int and sides >= 1, 'Illegal value for sides'
+    def dice():
+        return randint(1,sides)
+    return dice
+four_sided = make_fair_dice(4)
+six_sided = make_fair_dice(6)
+def make_test_dice(*outcomes):
+    assert len(outcomes) > 0, 'You must supply outcomes to make_test_dice'
+    for o in outcomes:
+        assert type(o) == int and o >= 1, 'Outcome is not a positive integer'
+    index = len(outcomes) - 1
+    def dice():
+        nonlocal index
+        index = (index + 1) % len(outcomes)
+        return outcomes[index]
+ EOF from operator import add, sub
+def a_plus_abs_b(a, b):
+    if b < 0:
+        f = sub
+    else:
+        f = add
+    return f(a, b)
+def two_of_three(a, b, c):
+    return max(a, b, c)**2 + min(max(a, b), max(b, c), max(a, c))**2
+def largest_factor(n):
+    "*** YOUR CODE HERE ***"
+    assert n > 1, "n must be greater than one"
+    m = n - 1
+    while n % m != 0:
+        m -= 1
+    return m
+def if_function(condition, true_result, false_result):
+    if condition:
+        return true_result
+    else:
+        return false_result
+def with_if_statement():
+    if c():
+        return t()
+    else:
+        return f()
+def with_if_function():
+    return if_function(c(), t(), f())
+def c():
+    "*** YOUR CODE HERE ***"
+    return False
+def t():
+    "*** YOUR CODE HERE ***"
+    print(1)
+def f():
+    "*** YOUR CODE HERE ***"
+    print(2)
+def hailstone(n):
+    "*** YOUR CODE HERE ***"
+    assert type(n) is int and n > 0, 'n must be a positive integer'
+    i = 1
+    while n != 1:
+        print(n)
+        i += 1
+        if n % 2 == 0:
+            n //= 2
+        else:
+            n *= 3
+            n += 1
+    print(n)
+    return i
+ EOF HW_SOURCE_FILE = 'hw02.py'
+from operator import add, mul, sub
+square = lambda x: x * x
+identity = lambda x: x
+triple = lambda x: 3 * x
+increment = lambda x: x + 1
+def product(n, term):
+    "*** YOUR CODE HERE ***"
+    i, total = 1, 1
+    while i <= n:
+        total *= term(i)
+        i += 1
+    return total
+def factorial(n):
+    "*** YOUR CODE HERE ***"
+    return product(n, lambda n: n)
+def accumulate(combiner, base, n, term):
+    "*** YOUR CODE HERE ***"
+    i, total = 1, base
+    while i <= n:
+        total = combiner(total, term(i))
+        i += 1
+    return total
+def summation_using_accumulate(n, term):
+    "*** YOUR CODE HERE ***"
+    return accumulate(add, 0, n, term)
+def product_using_accumulate(n, term):
+    "*** YOUR CODE HERE ***"
+    return accumulate(mul, 1, n, term)
+def compose1(f, g):
+    def h(x):
+        return f(g(x))
+    return h
+def make_repeater(f, n):
+    "*** YOUR CODE HERE ***"
+    def repeated(x):
+        i = 0
+        total = x
+        while i < n:
+            total = f(total)
+            i += 1
+        return total
+    return repeated
+def num_sevens(n):
+    "*** YOUR CODE HERE ***"
+    if n == 7:
+        return 1
+    elif n < 10:
+        return 0
+    else:
+        return num_sevens(n // 10) + num_sevens(n % 10)
+def pingpong(n):
+    "*** YOUR CODE HERE ***"
+    def helper(term, goal, n, count):
+        if count == goal:
+            return n
+        if count % 7 == 0 or num_sevens(count):
+            return helper(other(term), goal, other(term)(n, 1), count + 1)
+        return helper(term, goal, term(n, 1), count + 1)
+    def other(term):
+        if term(1, 1):
+            return sub
+        return add
+    return helper(add, n, 1, 1)
+def count_change(amount):
+    "*** YOUR CODE HERE ***"
+    def count(min, amt):
+        if amt < 0:
+            return 0
+        if amt == 0:
+            return 1
+        if min > amt:
+            return 0
+        return count(min, amt - min) + count(2 * min, amt)
+    return count(1, amount)
+def print_move(origin, destination):
+    print("Move the top disk from rod", origin, "to rod", destination)
+def move_stack(n, start, end):
+    assert 1 <= start <= 3 and 1 <= end <= 3 and start != end, "Bad start/end"
+    "*** YOUR CODE HERE ***"
+    if n == 1:
+        print_move(start, end)
+    else:
+        other = 6 - start - end
+        move_stack(n-1, start, other)
+        move_stack(1, start, end)
+        move_stack(n-1, other, end)
+from operator import sub, mul
+def make_anonymous_factorial():
+    return (lambda f: lambda k: f(f, k))(lambda f, k: k if k == 1 else mul(k, f(f, sub(k, 1))))
+ EOF HW_SOURCE_FILE = 'hw03.py'
+def tree(label, branches=[]):
+    for branch in branches:
+        assert is_tree(branch), 'branches must be trees'
+    return [label] + list(branches)
+def label(tree):
+    return tree[0]
+def branches(tree):
+    return tree[1:]
+def is_tree(tree):
+    if type(tree) != list or len(tree) < 1:
+        return False
+    for branch in branches(tree):
+        if not is_tree(branch):
+            return False
+    return True
+def is_leaf(tree):
+    return not branches(tree)
+def print_tree(t, indent=0):
+    print('  ' * indent + str(label(t)))
+    for b in branches(t):
+        print_tree(b, indent + 1)
+def copy_tree(t):
+    return tree(label(t), [copy_tree(b) for b in branches(t)])
+def intersection(st, ave):
+    return (st+ave)*(st+ave+1)//2 + ave
+def street(inter):
+    return w(inter) - avenue(inter)
+def avenue(inter):
+    return inter - (w(inter) ** 2 + w(inter)) // 2
+w = lambda z: int(((8*z+1)**0.5-1)/2)
+def taxicab(a, b):
+    "*** YOUR CODE HERE ***"
+    return abs(street(a) - street(b)) + abs(avenue(a) - avenue(b))
+def flatten(lst):
+    "*** YOUR CODE HERE ***"
+    final = []
+    for i in lst:
+        if type(i) == list:
+            final += flatten(i)
+        else:
+            final += [i]
+    return final
+def replace_leaf(t, old, new):
+    "*** YOUR CODE HERE ***"
+    if is_leaf(t) and label(t) == old:
+        return tree(new)
+    return tree(label(t), [replace_leaf(b, old, new) for b in branches(t)])
+def mobile(left, right):
+    assert is_side(left), "left must be a side"
+    assert is_side(right), "right must be a side"
+    return ['mobile', left, right]
+def is_mobile(m):
+    return type(m) == list and len(m) == 3 and m[0] == 'mobile'
+def left(m):
+    assert is_mobile(m), "must call left on a mobile"
+    return m[1]
+def right(m):
+    assert is_mobile(m), "must call right on a mobile"
+    return m[2]
+def side(length, mobile_or_weight):
+    assert is_mobile(mobile_or_weight) or is_weight(mobile_or_weight)
+    return ['side', length, mobile_or_weight]
+def is_side(s):
+    return type(s) == list and len(s) == 3 and s[0] == 'side'
+def length(s):
+    assert is_side(s), "must call length on a side"
+    return s[1]
+def end(s):
+    assert is_side(s), "must call end on a side"
+    return s[2]
+def weight(size):
+    assert size > 0
+    "*** YOUR CODE HERE ***"
+    return ['weight', size]
+def size(w):
+    assert is_weight(w), 'must call size on a weight'
+    "*** YOUR CODE HERE ***"
+    return w[1]
+def is_weight(w):
+    return type(w) == list and len(w) == 2 and w[0] == 'weight'
+def examples():
+    t = mobile(side(1, weight(2)),
+               side(2, weight(1)))
+    u = mobile(side(5, weight(1)),
+               side(1, mobile(side(2, weight(3)),
+                              side(3, weight(2)))))
+    v = mobile(side(4, t), side(2, u))
+    return (t, u, v)
+def total_weight(m):
+    if is_weight(m):
+        return size(m)
+    else:
+        assert is_mobile(m), "must get total weight of a mobile or a weight"
+        return total_weight(end(left(m))) + total_weight(end(right(m)))
+def balanced(m):
+    "*** YOUR CODE HERE ***"
+    if is_weight(m):
+        return True
+    elif length(left(m)) * total_weight(end(left(m))) == length(right(m)) * total_weight(end(right(m))):
+        return balanced(end(left(m))) and balanced(end(right(m)))
+    return False
+def totals_tree(m):
+    "*** YOUR CODE HERE ***"
+    if is_weight(m):
+        return tree(total_weight(m))
+    return tree(total_weight(m), [totals_tree(end(left(m))), totals_tree(end(right(m)))])
+def zero(f):
+    return lambda x: x
+def successor(n):
+    return lambda f: lambda x: f(n(f)(x))
+def one(f):
+    "*** YOUR CODE HERE ***"
+def two(f):
+    "*** YOUR CODE HERE ***"
+three = successor(two)
+def church_to_int(n):
+    "*** YOUR CODE HERE ***"
+def add_church(m, n):
+    "*** YOUR CODE HERE ***"
+def mul_church(m, n):
+    "*** YOUR CODE HERE ***"
+def pow_church(m, n):
+    "*** YOUR CODE HERE ***"
+ EOF def twenty_nineteen():
+    return 1000 * 2 + 500 - 400 // 3 + 1 - 349
+ EOF def both_positive(x, y):
+    return x > 0 and y > 0 
+def sum_digits(n):
+    "*** YOUR CODE HERE ***"
+    left, rem, sum = n, 0, 0
+    while left:
+        rem = left % 10
+        left = left // 10
+        sum += rem
+    return sum
+ EOF def lambda_curry2(func):
+    "*** YOUR CODE HERE ***"
+    return lambda x: lambda y: func(x, y)
+ EOF def skip_add(n):
+    "*** YOUR CODE HERE ***"
+    if n > 0:
+        return n + skip_add(n-2)
+    return 0
+this_file = __file__
+def hailstone(n):
+    "*** YOUR CODE HERE ***"
+    print(n)
+    if n == 1:
+        return 1
+    if n % 2 == 0:
+        return 1 + hailstone(n // 2)
+    return 1 + hailstone(n * 3 + 1)
+def summation(n, term):
+    assert n >= 1
+    "*** YOUR CODE HERE ***"
+    if n == 1:
+        return term(n)
+    return term(n) + summation(n-1, term)
+ EOF def couple(s1, s2):
+    assert len(s1) == len(s2)
+    "*** YOUR CODE HERE ***"
+    res = []
+    for i in range(len(s1)):
+        res += [[s1[i], s2[i]]]
+    return res
+def enumerate(s, start=0):
+    "*** YOUR CODE HERE ***"
+    return couple(range(start, len(s)+start), s)
+from math import sqrt
+def distance(city1, city2):
+    "*** YOUR CODE HERE ***"
+    return sqrt((get_lat(city1) - get_lat(city2)) ** 2 + (get_lon(city1)-get_lon(city2)) ** 2)
+def closer_city(lat, lon, city1, city2):
+    "*** YOUR CODE HERE ***"
+    tmp = make_city('', lat, lon)
+    if distance(tmp, city1) > distance(tmp, city2):
+        return get_name(city2)
+    return get_name(city1)
+def check_abstraction():
+def make_city(name, lat, lon):
+    if change_abstraction.changed:
+        return {"name" : name, "lat" : lat, "lon" : lon}
+    else:
+        return [name, lat, lon]
+def get_name(city):
+    if change_abstraction.changed:
+        return city["name"]
+    else:
+        return city[0]
+def get_lat(city):
+    if change_abstraction.changed:
+        return city["lat"]
+    else:
+        return city[1]
+def get_lon(city):
+    if change_abstraction.changed:
+        return city["lon"]
+    else:
+        return city[2]
+def change_abstraction(change):
+    change_abstraction.changed = change
+change_abstraction.changed = False
+ EOF LAB_SOURCE_FILE = "lab05.py"
+def merge(lst1, lst2):
+    if not lst1:
+        return lst2
+    elif not lst2:
+        return lst1
+    elif lst1[0] < lst2[0]:
+        return [lst1[0]] + merge(lst1[1:], lst2)
+    else:
+        return [lst2[0]] + merge(lst1, lst2[1:])
+def add_chars(w1, w2):
+    "*** YOUR CODE HERE ***"
+    if not w1:
+        return w2
+    elif w1 == w2:
+        return ''
+    elif w1[0] == w2[0]:
+        return add_chars(w1[1:], w2[1:])
+    else:
+        return w2[0] + add_chars(w1, w2[1:])
+def acorn_finder(t):
+    "*** YOUR CODE HERE ***"
+    if label(t) == 'acorn':
+        return True
+    elif is_leaf(t):
+        return False
+    else:
+        for b in branches(t):
+            if acorn_finder(b):
+                return True
+        return False
+def tree(label, branches=[]):
+    for branch in branches:
+        assert is_tree(branch), 'branches must be trees'
+    return [label] + list(branches)
+def label(tree):
+    return tree[0]
+def branches(tree):
+    return tree[1:]
+def is_tree(tree):
+    if type(tree) != list or len(tree) < 1:
+        return False
+    for branch in branches(tree):
+        if not is_tree(branch):
+            return False
+    return True
+def is_leaf(tree):
+    return not branches(tree)
+def print_tree(t, indent=0):
+    print('  ' * indent + str(label(t)))
+    for b in branches(t):
+        print_tree(b, indent + 1)
+def copy_tree(t):
+    return tree(label(t), [copy_tree(b) for b in branches(t)]) EOF def make_adder_inc(n):
+    "*** YOUR CODE HERE ***"
+    inc = 0
+    def adder(x):
+        nonlocal inc
+        res = n + x + inc
+        inc += 1
+        return res
+    return adder
+def map(fn, lst):
+    "*** YOUR CODE HERE ***"
+    for i in range(len(lst)):
+        lst.insert(i, fn(lst.pop(i)))
+ EOF def paths(m, n):
+    "*** YOUR CODE HERE ***"
+    def helper(x, y):
+        if x == m - 1 and y == n - 1:
+            return 1
+        if x == m - 1:
+            return helper(x, y+1)
+        elif y == n - 1:
+            return helper(x+1, y)
+        else:
+            return helper(x+1, y) + helper(x, y+1)
+    return helper(0, 0)
+def num_trees(n):
+    "*** YOUR CODE HERE ***"
+    if n == 1:
+        return 1
+    return sum(num_trees(k) * num_trees(n-k) for k in range(1, n))
+def prune_leaves(t, vals):
+    "*** YOUR CODE HERE ***"
+    if is_leaf(t) and label(t) in vals:
+        return None
+    new_b = []
+    for b in branches(t):
+        if label(b) not in vals and is_leaf(b):
+            print('DEBUG:', label(b))
+            new_b.append(tree(label(b)))
+            print('DEBUG:', new_b)
+        elif not is_leaf(b):
+            new_b.append(prune_leaves(b, vals))
+    return tree(label(t), new_b)
+def dict_to_lst(d):
+    result = []
+    for i in range(len(d)):
+        pair = min(d.items(), key=lambda x: x[1])
+        d.pop(pair[0])
+        result.append(pair)
+    return result
+def tree(label, branches=[]):
+    for branch in branches:
+        assert is_tree(branch), 'branches must be trees'
+    return [label] + list(branches)
+def label(tree):
+    return tree[0]
+def branches(tree):
+    return tree[1:]
+def is_tree(tree):
+    if type(tree) != list or len(tree) < 1:
+        return False
+    for branch in branches(tree):
+        if not is_tree(branch):
+            return False
+    return True
+def is_leaf(tree):
+    return not branches(tree)
+def print_tree(t, indent=0):
+    print('  ' * indent + str(label(t)))
+    for b in branches(t):
+        print_tree(b, indent + 1)
+def copy_tree(t):
+    return tree(label(t), [copy_tree(b) for b in branches(t)]) EOF class Link:
+    empty = ()
+    def __init__(self, first, rest=empty):
+        assert rest is Link.empty or isinstance(rest, Link)
+        self.first = first
+        self.rest = rest
+    def __repr__(self):
+        if self.rest is not Link.empty:
+            rest_repr = ', ' + repr(self.rest)
+        else:
+            rest_repr = ''
+        return 'Link(' + repr(self.first) + rest_repr + ')'
+    def __str__(self):
+        string = '<'
+        while self.rest is not Link.empty:
+            string += str(self.first) + ' '
+            self = self.rest
+        return string + str(self.first) + '>'
+class Tree:
+    def __init__(self, label, branches=[]):
+        for b in branches:
+            assert isinstance(b, Tree)
+        self.label = label
+        self.branches = list(branches)
+    def is_leaf(self):
+        return not self.branches
+    def map(self, fn):
+        self.label = fn(self.label)
+        for b in self.branches:
+            b.map(fn)
+    def __contains__(self, e):
+        if self.label == e:
+            return True
+        for b in self.branches:
+            if e in b:
+                return True
+        return False
+    def __repr__(self):
+        if self.branches:
+            branch_str = ', ' + repr(self.branches)
+        else:
+            branch_str = ''
+        return 'Tree({0}{1})'.format(self.label, branch_str)
+    def __str__(self):
+        def print_tree(t, indent=0):
+            tree_str = '  ' * indent + str(t.label) + "\n"
+            for b in t.branches:
+                tree_str += print_tree(b, indent + 1)
+            return tree_str
+        return print_tree(self).rstrip()
+def link_to_list(link):
+    "*** YOUR CODE HERE ***"
+    if link == Link.empty:
+        return []
+    return [link.first] + link_to_list(link.rest)
+def store_digits(n):
+    "*** YOUR CODE HERE ***"
+    rest = Link.empty
+    while n:
+        rest = Link(n % 10, rest)
+        n = n // 10
+    return rest
+def cumulative_sum(t):
+    "*** YOUR CODE HERE ***"
+    if t.is_leaf():
+        return
+    for b in t.branches:
+        cumulative_sum(b)
+        t.label += b.label
+ EOF def prune_small(t, n):
+    while len(t.branches) > n:
+        largest = max(t.branches, key=lambda x: x.label)
+        t.branches.remove(largest)
+    for b in t.branches:
+        prune_small(b, n)
+class Tree:
+    def __init__(self, label, branches=[]):
+        for b in branches:
+            assert isinstance(b, Tree)
+        self.label = label
+        self.branches = list(branches)
+    def is_leaf(self):
+        return not self.branches
+    def map(self, fn):
+        self.label = fn(self.label)
+        for b in self.branches:
+            b.map(fn)
+    def __contains__(self, e):
+        if self.label == e:
+            return True
+        for b in self.branches:
+            if e in b:
+                return True
+        return False
+    def __repr__(self):
+        if self.branches:
+            branch_str = ', ' + repr(self.branches)
+        else:
+            branch_str = ''
+        return 'Tree({0}{1})'.format(self.label, branch_str)
+    def __str__(self):
+        def print_tree(t, indent=0):
+            tree_str = '  ' * indent + str(t.label) + "\n"
+            for b in t.branches:
+                tree_str += print_tree(b, indent + 1)
+            return tree_str
+        return print_tree(self).rstrip()
+def num_splits(s, d):
+    "*** YOUR CODE HERE ***"
+    def difference_so_far(s, difference):
+        if not s:
+            if abs(difference) <= d:
+                return 1
+            else:
+                return 0
+        element = s[0]
+        s = s[1:]
+        return difference_so_far(s, difference + element) + difference_so_far(s, difference - element)
+    return difference_so_far(s, 0) // 2
+def insert(link, value, index):
+    "*** YOUR CODE HERE ***"
+    if link is Link.empty:
+        raise IndexError
+    elif not index:
+        old = link.first
+        link.first = value
+        curr = link.rest
+        while curr.rest is not Link.empty:
+            tmp = curr.first
+            curr.first = old
+            old = tmp
+            curr = curr.rest
+        tmp = curr.first
+        curr.first = old
+        curr.rest = Link(tmp)
+    else:
+        insert(link.rest, value, index - 1)
+class Link:
+    empty = ()
+    def __init__(self, first, rest=empty):
+        assert rest is Link.empty or isinstance(rest, Link)
+        self.first = first
+        self.rest = rest
+    def __repr__(self):
+        if self.rest is not Link.empty:
+            rest_repr = ', ' + repr(self.rest)
+        else:
+            rest_repr = ''
+        return 'Link(' + repr(self.first) + rest_repr + ')'
+    def __str__(self):
+        string = '<'
+        while self.rest is not Link.empty:
+            string += str(self.first) + ' '
+            self = self.rest
+        return string + str(self.first) + '>' EOF 
