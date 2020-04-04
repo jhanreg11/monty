@@ -1,5 +1,5 @@
 import os, re, shutil, numpy as np
-from tokenize import tokenize
+from tokenize import tokenize, untokenize
 from io import BytesIO
 from utils import get_importable_modules, read_file, write_file, get_dir_length
 from collections import OrderedDict
@@ -16,7 +16,6 @@ class Processor:
     self.buffer_dir = buffer_dir
     self.clean_file = clean_file
     self.max_vocab_len = max_vocab_len
-    self.empty_buffer()
     self.word_idx = {}
 
   def create_word_idx(self):
@@ -89,7 +88,9 @@ class Processor:
     return x, y
 
   @staticmethod
-  def py_tokenize(data):
+  def py_tokenize(data, full=False):
+    if full:
+      return tokenize(BytesIO(data.encode('utf-8')).readline)
     return [str_tok for _, str_tok, _, _, _ in tokenize(BytesIO(data.encode('utf-8')).readline)][1:]
 
   @staticmethod
@@ -161,8 +162,8 @@ class Processor:
 
   @staticmethod
   def process_text(data):
-    tokens = Processor.py_tokenize(data)
-    return ''.join([t for t in tokens if '#' != t[0] and '"""' != t[:3]])
+    tokens = Processor.py_tokenize(data, full=True)
+    return untokenize([t for t in tokens if t and '#' != t[0] and '"""' != t[:3]]).decode('utf-8')
 
   @staticmethod
   def process_text_old(data):
