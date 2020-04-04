@@ -178,7 +178,7 @@ class Processor:
     data = re.compile('#.*').sub('', data)
 
     # delete bad imports and provide warnings
-    data = re.sub(f'(\n|^)(import|from) (?!({"|".join(get_importable_modules())})).+', '', data)
+    data = re.sub('(\n|^)(import|from) (?!({})).+'.format("|".join(get_importable_modules())), '', data)
 
     # delete decorators
     data = re.sub(r'\n\s*@.*\n', '\n', data)
