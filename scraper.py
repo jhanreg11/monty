@@ -6,11 +6,11 @@ class Scraper:
   """
   Scrape python files from github repo and save to buffer
   """
-  def __init__(self, repo, owner, dest, root=''):
+  def __init__(self, repo, owner, dest, search_root=''):
     self.repo = repo
     self.owner = owner
     self.dest = dest
-    self.root = root
+    self.search_root = search_root
 
   def run(self):
     self.clone_repo()
@@ -29,7 +29,7 @@ class Scraper:
 
   def search(self):
     file_paths = []
-    for root, dirs, files in os.walk(os.path.join(self.repo, self.root)):
+    for root, dirs, files in os.walk(os.path.join(self.repo, self.search_root)):
       file_paths += [os.path.join(root, f) for f in files if f.endswith('.py')]
 
     return file_paths

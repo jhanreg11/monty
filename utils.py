@@ -1,4 +1,4 @@
-import os, pkgutil, shutil
+import os, pkgutil, shutil, numpy as np
 
 def read_file(path, verbose=False):
   """
@@ -65,3 +65,6 @@ def get_importable_modules():
     modules.append(pkg.name)
 
   return modules
+
+
+
