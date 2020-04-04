@@ -34,7 +34,7 @@ class Processor:
 
     wcounts = list(word_counts.items())
     wcounts.sort(key=lambda x: x[1], reverse=True)
-    wcounts.prepend(['OOV', None])
+    wcounts.insert(0, ['OOV', None])
 
     if len(wcounts) > self.max_vocab_len:
       wcounts = wcounts[:self.max_vocab_len]
@@ -163,7 +163,7 @@ class Processor:
   @staticmethod
   def process_text(data):
     tokens = Processor.py_tokenize(data, full=True)
-    return untokenize([t for t in tokens if t and '#' != t[0] and '"""' != t[:3]]).decode('utf-8')
+    return untokenize([t for t in tokens if t and '#' != t[0] and '"""' != t[:3]]).decode('utf-8') + '\nEOF\n'
 
   @staticmethod
   def process_text_old(data):
