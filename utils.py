@@ -67,4 +67,3 @@ def get_importable_modules():
         modules.append(pkg.name)
 
     return modules
->>>>>>> new-proj
