@@ -1,0 +1,4 @@
+.idea
+data/buffer/*
+venv
+**/__pycache__
