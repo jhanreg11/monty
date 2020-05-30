@@ -1,6 +1,7 @@
-from model import Model
-from processor import PreProcessor
 import argparse
+from pipeline.model import Model
+from pipeline.preprocessor import PreProcessor
+from pipeline.tokenizer import PyTokenizer
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Train LSTM model')
@@ -12,9 +13,9 @@ if __name__ == '__main__':
     parser.add_argument('--clean_path', type=str, default='data/clean.py', help='path to file containing cleansed data')
     args = parser.parse_args()
 
-    p = PreProcessor(args.buffer_dir, args.clean_path, args.max_vocab_len)
-    p.fit_on_data()
+    t = PyTokenizer(args.max_vocab_len)
+    p = PreProcessor(args.buffer_dir, args.clean_path, t)
     x, y = p.get_training_data(args.sample_len)
 
-    m = Model(p.real_vocab_len, args.sample_len)
+    m = Model(t.real_vocab_len, args.sample_len)
     m.train(x, y, args.epochs, args.batch_size)
