@@ -1,9 +1,9 @@
 import os
 import shutil
-from utils import copy_file, get_dir_length
+from utils import copy_file, get_dir_length, read_file
 
 
-class Scraper:
+class GithubScraper:
     """
     Scrape python files from github repo and save to buffer
     """
@@ -36,17 +36,19 @@ class Scraper:
 
         return file_paths
 
+    @staticmethod
+    def scrape_from_csv(filepath='../resources/repos.csv', dest='../data/buffer'):
+        data = read_file(filepath)
+        for line in data.split('\n'):
+            if line == '':
+                continue
+            name, author = line.split(',')
+            g = GithubScraper(name, author, dest)
+            try:
+                g.run()
+            except Exception:
+                print('Error scraping repo {} with name{}'.format(name, author))
+
 
 if __name__ == '__main__':
-    repos = [['keras', 'keras-team', 'keras'], ['scikit-learn', 'scikit-learn', 'sklearn'],
-             ['Mask_RCNN', 'matterport', 'mrcnn'], ['face_recognition', 'ageitgey'],
-             ['Detectron', 'facebookresearch', 'detectron'], ['pandas', 'pandas-dev', 'pandas'],
-             ['matplotlib', 'matplotlib', 'src']]
-
-    for args in repos[0:1]:
-        args.insert(2, 'data/buffer')
-        try:
-            s = Scraper(*args)
-            s.run()
-        except Exception as e:
-            print('ERROR trying to run scraper', e)
+    GithubScraper.scrape_from_csv()

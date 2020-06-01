@@ -1,3 +1,5 @@
+from uuid import UUID
+
 import numpy as np
 from tensorflow.keras.layers import Embedding, LSTM, Dense, Bidirectional
 from tensorflow.keras.models import Sequential
@@ -36,26 +38,28 @@ class Model:
                            optimizer=optimizer,
                            metrics=['accuracy'])
 
-    def train(self, x, y, epochs=1, mini_batch_size=128):
+    def train(self, x, y, test_data, epochs=1, mini_batch_size=128):
         """
         train model on given data
         :param x: np.array, training inputs, dims (#samples, sample_len)
         :param y: np.array, training labels, dims (#samples, vocab_len)
+        :param test_data: iterable, validation data in a tuple with same form as x & y
         :param epochs: int, number of iterations to train on data
         :param mini_batch_size: int, size of mini batches
         :return: None
         """
         assert x.shape[1] == self.sample_len, 'Incorrect sample length. Given: {}, Expecting: {}'.format(
             x.shape[1], self.sample_len)
-
-        checkpoint = ModelCheckpoint("best_model",
-                                     monitor='acc',
-                                     verbose=1,
+        checkpoint = ModelCheckpoint("../resources/best_model",
+                                     monitor='val_loss',
                                      save_best_only=True,
-                                     mode='auto',
                                      save_freq=1)
 
-        self.model.fit(x, y, mini_batch_size, epochs, verbose=1, callbacks=[checkpoint])
+        if test_data:
+            self.model.fit(x, y, mini_batch_size, epochs, verbose=1, callbacks=[checkpoint],
+                           validation_data=test_data)
+        else:
+            self.model.fit(x, y, mini_batch_size, epochs, verbose=1, callbacks=[checkpoint])
 
     def generate_script(self, seed, temp=0.5, **stop):
         """

@@ -1,4 +1,5 @@
-import argparse, numpy as np
+import argparse
+import numpy as np
 from tensorflow.keras.models import load_model
 from pipeline.model import Model
 from pipeline.tokenizer import PyTokenizer
@@ -13,7 +14,7 @@ def generate_seed(tokenizer, sample_len):
     :return: np.array, model seed shape (1, sample_len)
     """
     tokens = []
-    with open('data/clean.py', 'r') as file:
+    with open('data/test.py', 'r') as file:
         while len(tokens) < sample_len:
             tokens.extend(tokenizer.text_to_sequence(file.readline()))
 
@@ -27,7 +28,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser('Sample scripts from saved model')
     parser.add_argument('--sample_len', type=int, default=-1, help='-1 if sample till end of file. otherwise it is the '
                                                                    'number of tokens past the initial seed to sample.')
-    parser.add_argument('--model_path', type=str, default='best_model.npy', help='path to model')
+    parser.add_argument('--model_path', type=str, default='best_model', help='path to model')
     args = parser.parse_args()
 
     t = PyTokenizer(5000)

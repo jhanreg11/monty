@@ -22,6 +22,40 @@ class PyTokenizer:
         :param data: str, corpus to create tokenizer on
         :return: None
         """
+        wcounts = self.generate_wcounts(data)
+        wcounts.insert(0, ['OOV', None])
+
+        if len(wcounts) > self.max_vocab_len:
+            wcounts = wcounts[:self.max_vocab_len]
+
+        self.word_idx = dict(zip([wc[0] for wc in wcounts], list(range(len(wcounts)))))
+        self.idx_word = dict(zip(list(range(len(wcounts))), [wc[0] for wc in wcounts]))
+
+    def add_data_to_vocab(self, data):
+        """
+        Add new data to vocabulary without displacing old indices or generating duplicates
+        :param data: str, data to tokenize and add
+        :return: None
+        """
+        wcounts = self.generate_wcounts(data)
+        curr_len = self.real_vocab_len
+        for word, count in wcounts:
+            if curr_len >= self.max_vocab_len:
+                break
+            elif word in self.word_idx:
+                continue
+            else:
+                self.word_idx[word] = curr_len
+                self.idx_word[curr_len] = word
+                curr_len += 1
+
+    @staticmethod
+    def generate_wcounts(data):
+        """
+        utility method for creating word counts of each unique word in a list
+        :param data: str, data to tokenize and work with
+        :return: list, word counts, each element is form - [word (str), count (int)], sorted by count highest to lowest
+        """
         tokens = PyTokenizer.py_tokenize(data)
         word_counts = OrderedDict()
         for t in tokens:
@@ -32,13 +66,7 @@ class PyTokenizer:
 
         wcounts = list(word_counts.items())
         wcounts.sort(key=lambda x: x[1], reverse=True)
-        wcounts.insert(0, ['OOV', None])
-
-        if len(wcounts) > self.max_vocab_len:
-            wcounts = wcounts[:self.max_vocab_len]
-
-        self.word_idx = dict(zip([wc[0] for wc in wcounts], list(range(len(wcounts)))))
-        self.idx_word = dict(zip(list(range(len(wcounts))), [wc[0] for wc in wcounts]))
+        return wcounts
 
     def text_to_sequence(self, text):
         """
@@ -75,19 +103,15 @@ class PyTokenizer:
         """
         token_generator = tokenize(BytesIO(data.encode('utf-8')).readline)
         tokens = []
-        print_next = False
-        i = 0
         while True:
             try:
                 token_type, val, start, end, line = next(token_generator)
             except Exception:
                 break
 
-            if DEBUG and ("No data provided for" in val or (print_next and i < 40)):
+            if DEBUG and '.' in val:
                 print('In function py_tokenize. TOKEN_TYPE:', token_type, 'VALUE:', val, 'START_POS:', start,
                       'END_POS:', end, 'FULL_LINE:', line[:-1])
-                print_next = True
-                i += 1
 
             if token_type == STRING:
                 if val[0] != '"' and val[0] != "'":
@@ -141,7 +165,6 @@ class PyTokenizer:
                         print('ERROR: OPEN STRING WHEN EOF REACHED @ token', i, '@ line', num_lines,
                               'in Function: py_untokenize')
                     joined_tokens += str_buffer[0] * 2 + '\nEOF\n'
-                    last_10 = joined_tokens[-10:]
                     str_buffer = ''
                     cont_str = False
                 else:
@@ -160,12 +183,49 @@ class PyTokenizer:
 
         return joined_tokens
 
+    def save(self, filepath):
+        """
+        Save tokenizer to a file.
+        :param filepath: str,
+        :return: None
+        """
+        with open(filepath, 'w') as file:
+            for word in self.word_idx:
+                file.write('{},{}\t'.format(word, self.word_idx[word]))
+
+    @staticmethod
+    def load(filepath):
+        """
+        Load tokenizer from file.
+        :param filepath: str, filepath to load tokenizer from
+        :return: PyTokenizer
+        """
+        tokenizer = PyTokenizer(100000)
+        data = read_file(filepath)
+        for line in data.split('\t'):
+            if line == '':
+                continue
+
+            split = line.rindex(',')
+            word = line[0:split]
+            idx = int(line[split + 1:])
+
+            tokenizer.word_idx[word] = idx
+            tokenizer.idx_word[idx] = word
+
+        return tokenizer
+
 
 if __name__ == '__main__':
     t = PyTokenizer(5000)
     data = read_file('../data/clean.py')
     t.fit_on_data(data)
 
-    first_line = data[:300]
-    print('raw data:', first_line)
-    print('tokenized & untokenized data:', t.sequence_to_text(t.text_to_sequence(first_line)))
+    # first_line = data[:300]
+    # print('raw data:', first_line)
+    # print('tokenized & untokenized data:', t.sequence_to_text(t.text_to_sequence(first_line)))
+
+    t.save('../resources/tokenizer.csv')
+    nt = PyTokenizer.load('../resources/tokenizer.csv')
+    print(t.word_idx == nt.word_idx)
+
